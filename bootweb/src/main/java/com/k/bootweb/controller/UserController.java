@@ -4,20 +4,26 @@ import com.k.bootweb.mapper.UserMapper;
 import com.k.bootweb.pojo.dao.User;
 import com.k.bootweb.pojo.dto.Result;
 import com.k.bootweb.service.UserService;
+import com.k.bootweb.utils.RedisKeyUtil;
+import com.k.bootweb.utils.constant.CommunityConstant;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 @Api("登录相关接口")
 @RestController
 @CrossOrigin(origins = "*")
-public class UserController {
+public class UserController implements CommunityConstant {
 
     private static final Logger LOGGER = LogManager.getLogger(UserController.class);
 
@@ -26,6 +32,9 @@ public class UserController {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @GetMapping("/queryUser")
     public User queryUser(Integer id){
@@ -45,47 +54,25 @@ public class UserController {
         return user;
     }
 
-//    @ApiOperation("登录")
-//    @PostMapping(value = "/login")
-//    @ResponseBody
-//    public Result toLogin(
-//            HttpServletRequest request,
-//            HttpServletResponse response,
-//            @ApiParam(name = "username", value = "用户名", required = true)
-//            @RequestParam(name = "username", required = true)
-//                    String username,
-//            @ApiParam(name = "password", value = "密码", required = true)
-//            @RequestParam(name = "password", required = true)
-//                    String password,
-//            @ApiParam(name = "remeber_me", value = "记住我", required = false)
-//            @RequestParam(name = "remeber_me", required = false)
-//                    String remeber_me
-//    ){
-//
-//        try {
-//            User userInfo = userService.login(username, password);
-//            request.getSession().setAttribute(WebConst.LOGIN_SESSION_KEY, userInfo);
-//            if (StringUtils.isNotBlank(remeber_me)) {
-//                TaleUtils.setCookie(response, userInfo.getUid());
-//            }
-//        } catch (Exception e) {
-//            LOGGER.error(e.getMessage());
-//            String msg = "登录失败";
-//            return Result.fail(msg);
-//        }
-//
-//        return Result.success("登录成功");
-//
-//    }
 
     @ApiOperation("登录")
     @RequestMapping(path = "/login", method = RequestMethod.POST)
-    public Result login(String username, String password, boolean rememberme) {
-        Map<String, Object> map = userService.login(username, password);
-        if (map == null || map.isEmpty()) {
+    public Result login(String username, String password, boolean rememberme, HttpServletResponse response) {
+//
+//        String kaptcha = null;
+//        if (StringUtils.isNotBlank(ticket)) {
+//            kaptcha = (String) redisTemplate.opsForValue().get(ticket);
+//        }
+        int expiredSeconds = rememberme ? REMEMBER_EXPIRED_SECONDS : DEFAULT_EXPIRED_SECONDS;
+        Map<String, Object> map = userService.login(username, password,expiredSeconds);
+        if (StringUtils.isNotBlank((CharSequence) map.get("ticket"))) {
+            Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
+            cookie.setPath("/");
+            cookie.setMaxAge(expiredSeconds);
+            response.addCookie(cookie);
             return Result.success("登录成功");
         } else {
-            if(StringUtils.isNotBlank((String)map.get("usernameMsg"))){
+            if(StringUtils.isNotBlank((CharSequence) map.get("usernameMsg"))){
                 return Result.fail((String) map.get("usernameMsg"));
             }
             else if(StringUtils.isNotBlank((CharSequence) map.get("passwordMsg"))){
@@ -94,25 +81,15 @@ public class UserController {
             else
                 return null;
         }
-//        if (map.containsKey("ticket")) {
-//            Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
-//            cookie.setPath(contextPath);
-//            cookie.setMaxAge(expiredSeconds);
-//            response.addCookie(cookie);
-//            return "redirect:/index";
-//        } else {
-//            model.addAttribute("usernameMsg", map.get("usernameMsg"));
-//            model.addAttribute("passwordMsg", map.get("passwordMsg"));
-//            return "/site/login";
-//        }
+
     }
 
     @PostMapping(path = "/register")
     public Result register(String username,String password,String email)
     {
-        System.out.println(username+"/ "+password+" /"+email);
+//        System.out.println(username+"/ "+password+" /"+email);
         User user=new User(username,password,email);
-        System.out.println(user);
+//        System.out.println(user);
         Map<String, String> map = userService.register(user);
         if (map == null || map.isEmpty()) {
                 return Result.success("注册成功");

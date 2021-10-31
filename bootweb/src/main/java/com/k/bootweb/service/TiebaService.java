@@ -14,4 +14,6 @@ public interface TiebaService {
 
     TiebaDto<Object> findAllUserByPage1(int pageNum, int pageSize);
 
+    int updateCommentCount(int id, int commentCount);
+
 }

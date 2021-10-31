@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Tieba {
+    private int id;
     private int uid;
     private String username;
     private String title;

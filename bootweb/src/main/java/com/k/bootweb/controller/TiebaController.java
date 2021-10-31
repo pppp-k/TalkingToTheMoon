@@ -1,6 +1,5 @@
 package com.k.bootweb.controller;
 
-import com.github.pagehelper.PageInfo;
 import com.k.bootweb.pojo.dao.Tieba;
 import com.k.bootweb.service.TiebaService;
 import com.k.bootweb.service.TiebaServiceImpl;

@@ -8,10 +8,11 @@
   </sql>
 
   <sql id="BASE_COLUMN">
-    uid,username,title,summary,`like`,`Comment`
+    id,uid,username,title,summary,`like`,`Comment`
   </sql>
 
-  <select id="queryTiebaList" resultType="Tieba">
+
+    <select id="queryTiebaList" resultType="Tieba">
     SELECT
     <include refid="BASE_COLUMN"/>
     FROM
@@ -27,22 +28,26 @@
   </select>
 
   <select id="queryTiebaById" resultType="Tieba">
-    select <include refid="BASE_COLUMN"/> from <include refid="BASE_TABLE"/> where Uid = #{id}
+    select <include refid="BASE_COLUMN"/> from <include refid="BASE_TABLE"/> where id = #{id}
   </select>
 
   <select id="getTiebaListNum" resultType="int">
     select count(*) from <include refid="BASE_TABLE"/>
   </select>
 
-<!--  <insert id="addTieba" parameterType="Tieba">-->
-<!--    insert into user (username,title,summary,like,comment) values (#{id},#{title},#{summary},#{like},#{comment})-->
-<!--  </insert>-->
-<!--  -->
-<!--  <update id="updateTieba" parameterType="Tieba">-->
-<!--    update tieba set name=#{name},title=#{title} where id = #{id}-->
-<!--  </update>-->
-<!--  -->
-<!--  <delete id="deleteTieba" parameterType="int">-->
-<!--    delete from tieba where id = #{id}-->
-<!--  </delete>-->
+  <insert id="addTieba" parameterType="Tieba">
+    insert into user (username,title,summary,like,comment) values (#{id},#{title},#{summary},#{like},#{comment})
+  </insert>
+
+  <update id="updateTieba" parameterType="Tieba">
+    update tieba set name=#{name},title=#{title} where id = #{id}
+  </update>
+
+  <delete id="deleteTieba" parameterType="int">
+    delete from tieba where id = #{id}
+  </delete>
+
+  <update id="updateCommentCount">
+    update tieba set comment = #{commentCount} where id = #{id}
+  </update>
 </mapper>

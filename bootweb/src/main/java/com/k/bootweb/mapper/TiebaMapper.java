@@ -2,6 +2,7 @@ package com.k.bootweb.mapper;
 
 import com.k.bootweb.pojo.dao.Tieba;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,9 +20,11 @@ public interface TiebaMapper {
 
     int getTiebaListNum();
 
+    int updateCommentCount(@Param("id")int id, @Param("commentCount")int commentCount);
+
+    int deleteTieba(int id);
+
     int addTieba(Tieba tieba);
 
     int updateTieba(Tieba user);
-
-    int deleteTieba(int id);
 }

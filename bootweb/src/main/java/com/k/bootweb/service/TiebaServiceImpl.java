@@ -1,7 +1,5 @@
 package com.k.bootweb.service;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.k.bootweb.mapper.TiebaMapper;
 import com.k.bootweb.pojo.dao.Tieba;
 import com.k.bootweb.pojo.dto.TiebaDto;
@@ -20,7 +18,6 @@ public class TiebaServiceImpl implements TiebaService{
     public List<Tieba> queryTiebaList() {
         return tiebaMapper.queryTiebaList();
     }
-
 
 
     public TiebaDto<Object> findAllUserByPage1(int pageNum, int pageSize){
@@ -42,6 +39,9 @@ public class TiebaServiceImpl implements TiebaService{
             return TiebaDto.ok(tiebaMapper.queryTiebaByLimit(map),"查询成功",maxpage,size);
         }
 
+    }
 
+    public int updateCommentCount(int id, int commentCount) {
+        return tiebaMapper.updateCommentCount(id, commentCount);
     }
 }

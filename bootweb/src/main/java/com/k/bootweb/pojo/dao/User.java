@@ -20,6 +20,7 @@ public class User {
     @ApiModelProperty(value = "邮箱",position = 4)
     private String email;
     private String salt;
+    private int type;
 
     public User(String username,String password,String email){
         this.username=username;
